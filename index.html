@@ -2193,7 +2193,11 @@ function getAvatarColor(id) { const sum = id.split('').reduce((a,c)=>a+c.charCod
 let sessionSeconds = 1800;
 function updateTimer() {
   sessionSeconds--;
-  if(sessionSeconds <= 0) sessionSeconds = 1800;
+  if(sessionSeconds <= 0) {
+    showToast('Session expired. Please log in again.', 'error', 4000);
+    setTimeout(() => logout(), 1500);
+    return;
+  }
   const m = Math.floor(sessionSeconds/60).toString().padStart(2,'0');
   const s = (sessionSeconds%60).toString().padStart(2,'0');
   ['admin','emp','mgr'].forEach(id => {
@@ -2498,8 +2502,12 @@ function addEmployee() {
   else document.getElementById('err-emp-email').classList.remove('visible');
   if(!valid) return;
 
+  const maxId = AppState.employees.reduce((max, e) => {
+    const n = parseInt(e.id.replace(/\D/g,''), 10);
+    return isNaN(n) ? max : Math.max(max, n);
+  }, 0);
   const newEmp = {
-    id: 'emp' + Date.now(),
+    id: 'emp' + (maxId + 1),
     name, email, department: dept, role, reportsTo,
     status: 'active',
     monthlySpend: 0,
@@ -2996,7 +3004,7 @@ function renderClaimsHistory() {
 let rejectTargetId = null;
 let approveTargetId = null;
 let selectedClaims = new Set();
-let currentMonth = new Date();
+let analyticsMonth = new Date();
 
 function initManagerPortal() {
   showMgrSection('mgr-approvals', document.querySelector('#mgr-sidebar .nav-item'));
@@ -3144,8 +3152,8 @@ function bulkRejectPrompt() {
 }
 
 function changeMonth(dir) {
-  currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()+dir, 1);
-  document.getElementById('month-label').textContent = currentMonth.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  analyticsMonth = new Date(analyticsMonth.getFullYear(), analyticsMonth.getMonth()+dir, 1);
+  document.getElementById('month-label').textContent = analyticsMonth.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
   renderTeamAnalytics();
 }
 
