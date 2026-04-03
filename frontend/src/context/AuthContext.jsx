@@ -4,85 +4,99 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [company, setCompany] = useState(null);
+  const [tokens, setTokens] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load state from local storage for persistence
     const storedUser = localStorage.getItem('user');
-    const storedCompany = localStorage.getItem('company');
-    if (storedUser) setUser(JSON.parse(storedUser));
-    if (storedCompany) setCompany(JSON.parse(storedCompany));
+    const storedTokens = localStorage.getItem('tokens');
+    
+    if (storedUser && storedTokens) {
+      setUser(JSON.parse(storedUser));
+      setTokens(JSON.parse(storedTokens));
+    }
+    setLoading(false);
   }, []);
 
-  const login = (email, password) => {
-    // Mocking an admin user login if nothing in localStorage
-    const savedCompany = localStorage.getItem('company');
-    
-    // Create new admin if no company exists
-    if (!savedCompany && email.includes('admin')) {
-      return { err: "Company not found. Please sign up." };
+  const login = async (email, password) => {
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/auth/token/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!res.ok) {
+        return { err: "Invalid credentials." };
+      }
+
+      const data = await res.json();
+      
+      // We need to fetch user details using token if not provided.
+      // But our default simplejwt doesn't return user details. 
+      // We will perform a quick /api/users/ fetch to set user
+      const userRes = await fetch('http://127.0.0.1:8000/api/users/', {
+        headers: { 'Authorization': `Bearer ${data.access}` }
+      });
+      
+      if (userRes.ok) {
+        const users = await userRes.json();
+        const activeUser = users.find(u => u.email === email);
+        
+        if (activeUser) {
+          setUser(activeUser);
+          setTokens(data);
+          localStorage.setItem('user', JSON.stringify(activeUser));
+          localStorage.setItem('tokens', JSON.stringify(data));
+          return true;
+        }
+      }
+      return { err: "User data fetch failed." };
+    } catch (e) {
+      console.error(e);
+      return { err: "Server connection failed." };
     }
-
-    const mUser = {
-      id: 1,
-      email,
-      name: email.split('@')[0],
-      role: email.includes('admin') ? 'Admin' : (email.includes('manager') ? 'Manager' : 'Employee')
-    };
-
-    setUser(mUser);
-    localStorage.setItem('user', JSON.stringify(mUser));
-    return true;
   };
 
   const signup = async (email, password, companyName, country) => {
     try {
-      // Fetch country details to get currency
-      let baseCurrency = "USD"; // Default
-      if (country) {
-        const res = await fetch(`https://restcountries.com/v3.1/name/${country}?fullText=true&fields=name,currencies`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.length > 0 && data[0].currencies) {
-            baseCurrency = Object.keys(data[0].currencies)[0];
-          }
-        }
+      const res = await fetch('http://127.0.0.1:8000/api/auth/signup/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, company_name: companyName, country })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        return { err: errData.error || "Signup failed." };
       }
 
-      const newCompany = {
-        name: companyName,
-        baseCurrency,
-        country
-      };
+      const data = await res.json();
+      setUser(data.user);
+      setTokens({ access: data.access, refresh: data.refresh });
       
-      const adminUser = {
-        id: 1,
-        email,
-        name: email.split('@')[0],
-        role: 'Admin'
-      };
-
-      setCompany(newCompany);
-      setUser(adminUser);
-
-      localStorage.setItem('company', JSON.stringify(newCompany));
-      localStorage.setItem('user', JSON.stringify(adminUser));
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('tokens', JSON.stringify({ access: data.access, refresh: data.refresh }));
       
       return { success: true };
     } catch (error) {
-      console.error("Signup error:", error);
-      return { err: "Failed to fetch country details." };
+      console.error(error);
+      return { err: "Server connection failed." };
     }
   };
 
   const logout = () => {
     setUser(null);
+    setTokens(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('tokens');
   };
 
   return (
-    <AuthContext.Provider value={{ user, company, login, signup, logout }}>
-      {children}
+    <AuthContext.Provider value={{ user, tokens, login, signup, logout, loading }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

@@ -4,8 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import { LayoutDashboard, Receipt, CheckSquare, Settings, LogOut } from 'lucide-react';
 
 const Layout = () => {
-  const { user, company, logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const company = user?.company;
 
   const handleLogout = () => {
     logout();
