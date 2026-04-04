@@ -59,3 +59,27 @@ This document explicitly traces the end-to-end journey of data and user interact
 - Throughout this entire lifecycle, Django native `Signals` are firing silently in the background mapping every single mutation.
 - When the Employee creates the expense, when the conversion API hits, when the Manager approves it—a read-only `AuditLog` row is generated containing the exact timestamp, the exact `User ID` responsible, and the context.
 - Admins can query this at any time to guarantee 100% platform tracking integrity.
+
+---
+
+## 🧭 6. Backend Folder Governance (Single Root Rule)
+
+To avoid architecture confusion, the repository enforces one backend root only:
+
+1. Canonical root: `backend/`
+2. Active backend implementation stays directly under `backend/` (currently Django: `api/`, `core/`, `manage.py`)
+3. Non-active implementations must be classified as subfolders inside `backend/`
+
+Naming conventions:
+- Legacy or archived implementations: `backend/legacy_<framework>/`
+- Experimental implementations: `backend/experimental_<framework>/`
+- Multiple active backends (rare): `backend/<framework>/` with an explicit routing doc and owner
+
+Examples:
+- `backend/legacy_fastapi/`
+- `backend/experimental_node/`
+- `backend/django/` and `backend/fastapi/` (only if both are active and intentionally maintained)
+
+Rules:
+- Do not create a second top-level backend folder.
+- Any backend migration must update `README.md`, `ARCHITECTURE.md`, and `CHANGELOG.md` in the same change.

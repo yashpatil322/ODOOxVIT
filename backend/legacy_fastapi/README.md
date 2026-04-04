@@ -21,7 +21,7 @@ This project is designed to demonstrate:
 ## Project Layout
 
 ```text
-reimbursement-system/
+backend/legacy_fastapi/
   app/
     api/
       v1/
@@ -144,7 +144,7 @@ Interactive API docs:
 
 ## Local Setup
 
-From repository root (reimbursement-system):
+From `backend/legacy_fastapi`:
 
 1. Create virtual environment
 
@@ -262,7 +262,7 @@ Recommended upgrades for production use:
 ## Troubleshooting
 
 1. Could not open requirements.txt
-- Ensure you run pip install from reimbursement-system folder.
+- Ensure you run pip install from backend/legacy_fastapi.
 
 2. Database tables missing
 - Run alembic upgrade head.

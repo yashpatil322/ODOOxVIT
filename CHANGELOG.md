@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - **Folder Restructuring:**
   - Renamed the legacy Python FastAPI implementation from `reimbursement-system` to `fastapi_backend_old` to prevent conflicting architecture operations.
+  - Consolidated backend layout into a single top-level `backend/` folder by moving the legacy FastAPI code to `backend/legacy_fastapi/`.
   - Configured `backend/core/settings.py` strictly allowing `CORS_ALLOW_ALL_ORIGINS = True` to enable smooth cross-origin connection to the new `frontend/`. 
 
 ### Fixed

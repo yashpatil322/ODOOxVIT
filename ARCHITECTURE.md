@@ -4,7 +4,11 @@ This document serves as a comprehensive overview of the `ODOOxVIT` Reimbursement
 
 ## 1. System Components
 
-The application functions across two decoupled spaces: `frontend/` (React SPA) and `backend/` (Django REST API).
+The application functions across two decoupled spaces: `frontend/` (React SPA) and `backend/` (single backend root with classified backend types).
+
+Backend classification:
+- `backend/` -> active Django REST backend (`api/`, `core/`, `manage.py`)
+- `backend/legacy_fastapi/` -> archived FastAPI implementation (legacy reference only)
 
 ### A. The Frontend Interface
 - **Framework:** Vite + React + React Router DOM

@@ -41,7 +41,7 @@ python -m venv venv
 # source venv/bin/activate
 
 # Install Dependencies
-pip install django djangorestframework django-cors-headers
+pip install -r requirements.txt
 
 # Apply Migrations and Run Server
 python manage.py makemigrations
@@ -50,9 +50,17 @@ python manage.py runserver
 ```
 The Django REST APIs will execute at `http://127.0.0.1:8000/api/`.
 
+### 3. Backend Folder Classification
+
+The repository now enforces a single top-level backend folder:
+
+- `backend/` (canonical backend root)
+  - `backend/api/` + `backend/core/` + `backend/manage.py`: Active Django REST backend.
+  - `backend/legacy_fastapi/`: Legacy FastAPI implementation retained for historical reference.
+
 ## 📌 Important Notes
 
-- The previous FastAPI backend iteration has been preserved under `fastapi_backend_old/` for historical tracking if required. The active canonical backend is strictly placed inside `backend/`.
+- The previous FastAPI backend iteration has been moved under `backend/legacy_fastapi/` for historical tracking. The active canonical backend remains the Django app in `backend/`.
 - Frontend initially executes on local mock `AuthContext.jsx` state to allow instant UX prototyping. It is intended to be retrofitted to query the active `backend/api/` network later.
 
 ---
