@@ -58,6 +58,26 @@ Shared local development logins created by `seed_demo_data`:
 - `employee1@demo.com / employee123`
 - `employee2@demo.com / employee123`
 
+### 2.1 One-Click Backend Setup (Windows)
+
+From `backend/`, run one command to create venv, install dependencies, migrate, and seed shared demo users:
+
+```powershell
+.\setup_dev.ps1
+```
+
+Or run the batch launcher:
+
+```cmd
+setup_dev.bat
+```
+
+To setup and immediately start the backend server:
+
+```powershell
+.\setup_dev.ps1 -RunServer
+```
+
 ### 3. Backend Folder Classification
 
 The repository now enforces a single top-level backend folder:
