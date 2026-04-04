@@ -43,12 +43,20 @@ python -m venv venv
 # Install Dependencies
 pip install -r requirements.txt
 
-# Apply Migrations and Run Server
+# Apply Migrations, Seed Shared Demo Users, and Run Server
 python manage.py makemigrations
 python manage.py migrate
+python manage.py seed_demo_data
 python manage.py runserver
 ```
 The Django REST APIs will execute at `http://127.0.0.1:8000/api/`.
+
+Shared local development logins created by `seed_demo_data`:
+
+- `admin@demo.com / admin123`
+- `manager@demo.com / manager123`
+- `employee1@demo.com / employee123`
+- `employee2@demo.com / employee123`
 
 ### 3. Backend Folder Classification
 
